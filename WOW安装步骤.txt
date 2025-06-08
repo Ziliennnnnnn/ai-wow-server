@@ -1,0 +1,147 @@
+一、DD系统
+curl -O https://raw.githubusercontent.com/bin456789/reinstall/main/reinstall.sh || wget -O reinstall.sh $_
+bash reinstall.sh ubuntu 24.04
+reboot
+
+vps一键脚本工具
+curl -fsSL https://raw.githubusercontent.com/eooce/ssh_tool/main/ssh_tool.sh -o ssh_tool.sh && chmod +x ssh_tool.sh && ./ssh_tool.sh
+
+开启端口
+3306
+3724
+8085
+
+二、正式启动安装
+
+# 更新系统并安装依赖
+sudo apt update && sudo apt upgrade -y && sudo apt install -y git cmake make gcc g++ clang libmysqlclient-dev libssl-dev libbz2-dev libreadline-dev libncurses-dev mysql-server libboost-all-dev ufw curl unzip sudo
+
+# 创建专用目录
+mkdir -p ~/ai_wow && cd ~/ai_wow
+
+# 克隆定制核心（Playerbot分支）
+git clone https://github.com/liyunfan1223/azerothcore-wotlk.git --branch=Playerbot
+
+# 添加AI模块
+cd azerothcore-wotlk/modules
+git clone https://github.com/liyunfan1223/mod-playerbots.git --branch=master
+
+#进入build
+cd ~/ai_wow/azerothcore-wotlk
+mkdir build && cd build
+
+# 启用AI模块的编译参数
+cmake ../ -DCMAKE_INSTALL_PREFIX=$HOME/ai_server/ \
+-DCMAKE_C_COMPILER=/usr/bin/clang \
+-DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
+-DWITH_WARNINGS=1 \
+-DTOOLS_BUILD=all \
+-DSCRIPTS=static \
+-DMODULES=static \
+-DPLAYERBOTS=ON
+
+# 并行编译（根据CPU核心数调整）
+make -j$(($(nproc) - 1))
+make install
+
+# 创建数据目录
+mkdir -p /root/ai_server/data
+
+# 下载data.zip：
+sudo mkdir -p /root/ai_server/data && \
+sudo wget -O /root/ai_server/data/data.zip https://github.com/wowgaming/client-data/releases/download/v16/data.zip && \
+sudo unzip /root/ai_server/data/data.zip -d /root/ai_server/data/ && \
+sudo rm /root/ai_server/data/data.zip
+
+# 1. 创建配置文件副本
+cp /root/ai_server/etc/worldserver.conf.dist /root/ai_server/etc/worldserver.conf
+
+# 2. 修改数据目录路径（使用sed命令快速修改）
+sed -i 's/^DataDir *= *"."/DataDir = "\/root\/ai_server\/data"/' /root/ai_server/etc/worldserver.conf
+
+# 3. 验证修改结果
+grep 'DataDir' /root/ai_server/etc/worldserver.conf
+# 正确输出应显示：DataDir = "/root/ai_server/data"
+
+# 4. 同步配置认证服务
+cp /root/ai_server/etc/authserver.conf.dist /root/ai_server/etc/authserver.conf
+
+#进入数据库的终端
+sudo mysql 
+
+执行以下SQL语句，创建acore用户，创建acore_world、acore_characters、acore_auth三个数据库，并授权acore用户拥有这三个数据库的所有权限
+DROP USER IF EXISTS 'acore'@'%';
+CREATE USER 'acore'@'%' IDENTIFIED BY 'acore' WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0;
+
+GRANT ALL PRIVILEGES ON * . * TO 'acore'@'%' WITH GRANT OPTION;
+
+DROP DATABASE IF EXISTS `acore_world`;
+CREATE DATABASE `acore_world` DEFAULT CHARACTER SET UTF8MB4 COLLATE utf8mb4_general_ci;
+
+DROP DATABASE IF EXISTS `acore_characters`;
+CREATE DATABASE `acore_characters` DEFAULT CHARACTER SET UTF8MB4 COLLATE utf8mb4_general_ci;
+
+DROP DATABASE IF EXISTS `acore_auth`;
+CREATE DATABASE `acore_auth` DEFAULT CHARACTER SET UTF8MB4 COLLATE utf8mb4_general_ci;
+
+GRANT ALL PRIVILEGES ON `acore_world` . * TO 'acore'@'%' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON `acore_characters` . * TO 'acore'@'%' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON `acore_auth` . * TO 'acore'@'%' WITH GRANT OPTION;
+
+#安装完后查看
+SHOW DATABASES;
+
+exit;
+
+#修改完MySQL后
+sudo systemctl restart mysql
+
+#启动
+cd /root/ai_server/bin
+./authserver
+./worldserver
+
+创建帐号（世界服务中输入命令）
+account create 帐号 密码 设置为管理员 account set gmlevel 帐号 3 -1 修改密码 account set password 帐号 密码 密码2
+
+机器人下载链接：https://github.com/liyunfan1223/unbot-addon.git
+##############################################################加餐：
+
+# 更新软件源并安装 screen
+sudo apt update && sudo apt install screen -y
+
+# 创建名为 authserver 的 screen 会话
+screen -S authserver
+
+# 进入服务器目录（根据实际路径调整）
+cd ~/azeroth-server/bin
+
+# 启动认证服务（保持前台运行）
+./authserver
+
+# 退出 screen 会话（不终止进程）
+# 按下组合键：Ctrl+A 松开，再按 D
+
+# 创建名为 worldserver 的 screen 会话
+screen -S worldserver
+
+# 进入服务器目录（确保路径正确）
+cd ~/azeroth-server/bin
+
+# 启动世界服务（保持前台运行）
+./worldserver
+
+# 退出 screen 会话（不终止进程）
+# 按下组合键：Ctrl+A 松开，再按 D
+
+# 查看所有活跃会话
+screen -ls
+# 输出示例：
+# 1234.authserver (Detached)
+# 5678.worldserver (Detached)
+
+# 重新连接认证服务会话
+screen -r authserver
+
+# 重新连接世界服务会话
+screen -r worldserver

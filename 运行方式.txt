@@ -1,0 +1,27 @@
+chmod +x wow_ai_installer.sh && ./wow_ai_installer.sh
+
+建立账号
+account create aaaa 1111 1111
+account set gmlevel aaaa 3 -1
+
+#后台运行服务器
+
+# 安装screen
+sudo apt update
+sudo apt install -y screen
+
+# 进入服务器目录
+cd /root/wow/ai_server/bin
+
+# 创建并启动authserver的screen会话（以分离模式）
+screen -dmS authserver ./authserver
+
+# 创建并启动worldserver的screen会话（以分离模式）
+screen -dmS worldserver ./worldserver
+
+# 显示screen会话列表
+screen -ls
+
+
+
+.quest complete 任务名称
