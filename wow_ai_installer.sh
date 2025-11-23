@@ -25,11 +25,11 @@ sudo ufw status
 # ====================== 源码编译与安装 ======================
 echo "[3/8] 正在部署核心服务..." 
 mkdir -p $WORK_DIR/ai_wow && cd $WORK_DIR/ai_wow
-git clone https://github.com/liyunfan1223/azerothcore-wotlk.git --branch=Playerbot
+git clone https://github.com/mod-playerbots/azerothcore-wotlk.git --branch=Playerbot
 
 # 添加AI模块
 cd azerothcore-wotlk/modules 
-git clone https://github.com/liyunfan1223/mod-playerbots.git --branch=master
+git clone https://github.com/mod-playerbots/mod-playerbots.git --branch=master
 
 # 编译安装
 cd $WORK_DIR/ai_wow/azerothcore-wotlk
@@ -37,7 +37,7 @@ mkdir build && cd build
 cmake ../ -DCMAKE_INSTALL_PREFIX=$WORK_DIR/ai_server/ -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DWITH_WARNINGS=1 -DTOOLS_BUILD=all -DSCRIPTS=static -DMODULES=static
   
 echo "[4/8] 正在编译源码（约15-30分钟）..." 
-make -j$(($(nproc) - 1)) 
+make -j 2 
 make install
 
 # ====================== 客户端数据部署 ======================
@@ -57,10 +57,6 @@ sed -i "s|^DataDir.*|DataDir = \"$WORK_DIR/ai_server/data\"|" $WORK_DIR/ai_serve
 sed -i 's/^AiPlayerbot.RandomBotAutologin\s*=\s*1/AiPlayerbot.RandomBotAutologin = 0/' $WORK_DIR/ai_server/etc/modules/playerbots.conf.dist
 sudo sed -i '/^bind-address/s/127.0.0.1/0.0.0.0/; /^mysqlx-bind-address/s/127.0.0.1/0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
 
-# ======================
-# 权限修复（关键步骤）
-# ======================
-sudo chown -R ubuntu:ubuntu $WORK_DIR/ai_*
 
 # ====================== 数据库初始化 ======================
 echo "[7/8] 正在初始化数据库..." 
