@@ -43,7 +43,7 @@ make install
 # ====================== 客户端数据部署 ======================
 echo "[5/8] 正在下载游戏数据..." 
 mkdir -p $WORK_DIR/ai_server/data
-wget -O $WORK_DIR/ai_server/data/data.zip https://github.com/wowgaming/client-data/releases/download/v18/data.zip
+wget -O $WORK_DIR/ai_server/data/data.zip https://github.com/wowgaming/client-data/releases/download/v18.0/Data.zip
 unzip $WORK_DIR/ai_server/data/data.zip -d $WORK_DIR/ai_server/data/
 rm $WORK_DIR/ai_server/data/data.zip
 
