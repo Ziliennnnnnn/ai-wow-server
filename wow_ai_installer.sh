@@ -43,7 +43,7 @@ make install
 # ====================== 客户端数据部署 ======================
 echo "[5/8] 正在下载游戏数据..." 
 mkdir -p $WORK_DIR/ai_server/data
-wget -O $WORK_DIR/ai_server/data/data.zip https://github.com/wowgaming/client-data/releases/download/v18.0/Data.zip
+wget -O $WORK_DIR/ai_server/data/data.zip https://github.com/wowgaming/client-data/releases/download/v19.0/Data.zip
 unzip $WORK_DIR/ai_server/data/data.zip -d $WORK_DIR/ai_server/data/
 rm $WORK_DIR/ai_server/data/data.zip
 
@@ -51,6 +51,7 @@ rm $WORK_DIR/ai_server/data/data.zip
 echo "[6/8] 正在配置服务..." 
 cp $WORK_DIR/ai_server/etc/worldserver.conf.dist $WORK_DIR/ai_server/etc/worldserver.conf
 cp $WORK_DIR/ai_server/etc/authserver.conf.dist $WORK_DIR/ai_server/etc/authserver.conf
+cp $WORK_DIR//ai_server/etc/modules/playerbots.conf.dist $WORK_DIR/ai_server/etc/modules/playerbots.conf
 
 # 批量修改配置
 sed -i "s|^DataDir.*|DataDir = \"$WORK_DIR/ai_server/data\"|" $WORK_DIR/ai_server/etc/worldserver.conf
