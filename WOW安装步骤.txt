@@ -49,9 +49,9 @@ mkdir -p /root/ai_server/data
 
 # 下载data.zip：
 sudo mkdir -p /root/ai_server/data && \
-sudo wget -O /root/ai_server/data/data.zip https://github.com/wowgaming/client-data/releases/download/v16/data.zip && \
-sudo unzip /root/ai_server/data/data.zip -d /root/ai_server/data/ && \
-sudo rm /root/ai_server/data/data.zip
+sudo wget -O /root/ai_server/data/Data.zip https://github.com/wowgaming/client-data/releases/download/v19/Data.zip && \
+sudo unzip -o /root/ai_server/data/Data.zip -d /root/ai_server/data/ && \
+sudo rm /root/ai_server/data/Data.zip
 
 # 1. 创建配置文件副本
 cp /root/ai_server/etc/worldserver.conf.dist /root/ai_server/etc/worldserver.conf
@@ -144,4 +144,5 @@ screen -ls
 screen -r authserver
 
 # 重新连接世界服务会话
+
 screen -r worldserver
