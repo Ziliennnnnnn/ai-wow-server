@@ -65,6 +65,7 @@ grep 'DataDir' /root/ai_server/etc/worldserver.conf
 
 # 4. 同步配置认证服务
 cp /root/ai_server/etc/authserver.conf.dist /root/ai_server/etc/authserver.conf
+cp /root/ai_server/etc/modules/playerbots.conf.dist /root/ai_server/etc/modules/playerbots.conf
 
 #进入数据库的终端
 sudo mysql 
@@ -146,3 +147,4 @@ screen -r authserver
 # 重新连接世界服务会话
 
 screen -r worldserver
+
