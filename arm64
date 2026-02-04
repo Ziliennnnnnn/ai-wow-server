@@ -57,7 +57,7 @@ cmake ../ \
   -DPLAYERBOTS=ON  # 关键！启用Playerbots模块
 
 echo "[5/10] 正在编译源码（智能线程数）..."
-make -j$(( $(nproc) > 4 ? 4 : $(nproc) ))  # 安全线程数
+make -j3  # 安全线程数
 make install
 
 # ====================== 客户端数据部署 ======================
