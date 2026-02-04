@@ -144,4 +144,41 @@ echo ""
 echo "🎮 创建管理员账号 (在worldserver控制台执行):"
 echo "   account create admin admin admin
 echo "   account set gmlevel admin 3 -1"
-echo "========================="
+echo "=========================
+
+
+
+
+# 1️⃣ 进入PlayerBots基础SQL目录
+cd /root/wow/ai_wow/azerothcore-wotlk/modules/mod-playerbots/data/sql/characters/base
+
+# 2️⃣ 按字母顺序导入所有基础表（含playerbots_names等）
+for sql in *.sql; do
+  echo "📌 导入: $sql"
+  mysql -u root -p acore_characters < "$sql" 2>&1 | grep -v "Warning" || true
+done
+
+# 3️⃣ 验证关键表是否存在（应全部显示）
+mysql -u root -p acore_characters -e "
+SHOW TABLES LIKE 'playerbots_%' 
+WHERE Tables_in_acore_characters IN (
+  'playerbots_guild_names', 
+  'playerbots_names', 
+  'playerbots_guilds', 
+  'playerbots_equipment'
+);"
+
+# 4️⃣ 清除所有失败的更新标记（重置更新状态）
+mysql -u root -p acore_characters -e "DELETE FROM updates WHERE hash='514AE89';"
+
+# 5️⃣ 重启服务（自动重试完整更新）
+pkill -9 -f "authserver|worldserver" 2>/dev/null
+fuser -k 3724/tcp 8085/tcp 2>/dev/null
+cd /root/wow/ai_server/bin
+screen -dmS authserver ./authserver
+sleep 3
+screen -dmS worldserver ./worldserver
+
+# 6️⃣ 实时监控更新日志
+sleep 2
+screen -r worldserver  # 观察是否显示"Character database is up-to-date!"
